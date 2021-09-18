@@ -157,6 +157,42 @@ impl EventHandler for Handler {
     }
 }
 
+async fn update_channel(url: String, chan: KitsuChannel) -> Result<()> {
+    let _: serde_json::Value = reqwest::Client::new()
+        .put(url)
+        .json(&chan)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    Ok(())
+}
+
+async fn update_user(url: String, user: KitsuUser) -> Result<()> {
+    let _: serde_json::Value = reqwest::Client::new()
+        .put(url)
+        .json(&user)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    Ok(())
+}
+
+async fn update_guild(url: String, guild: KitsuGuild) -> Result<()> {
+    let _: serde_json::Value = reqwest::Client::new()
+        .put(url)
+        .json(&guild)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    Ok(())
+}
+
 async fn post_url(url: String, msg: KitsuMessage) -> Result<()> {
     let _: serde_json::Value = reqwest::Client::new()
         .post(url)
@@ -222,11 +258,32 @@ async fn post_channel(url: String, channel: KitsuChannel) -> Result<i8> {
     Ok(id)
 }
 
-async fn fetch_guild(url: String, kitsu_guild: KitsuGuild) -> Result<i8> {
+async fn fetch_guild(url: String, mut kitsu_guild: KitsuGuild) -> Result<i8> {
     let echo_json: serde_json::Value = reqwest::get(&url).await?.json().await?;
     let mut id: i8;
     if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
+
+        if echo_json["data"]["vip"]
+            .to_string()
+            .parse::<bool>()
+            .unwrap()
+            == false
+        {
+            id = 0;
+        }
+
+        if echo_json["data"]["guild_name"].to_string() != kitsu_guild.guild_name {
+            kitsu_guild.vip = echo_json["data"]["vip"]
+                .to_string()
+                .parse::<bool>()
+                .unwrap();
+            let _ = update_guild(
+                format!("http://127.0.0.1:1812/api/v1/guild/id/{:?}", id),
+                kitsu_guild,
+            )
+            .await;
+        }
     } else {
         id = post_guild(
             "http://127.0.0.1:1812/api/v1/guild/new".to_string(),
@@ -234,15 +291,6 @@ async fn fetch_guild(url: String, kitsu_guild: KitsuGuild) -> Result<i8> {
         )
         .await
         .unwrap();
-    }
-
-    if echo_json["data"]["vip"]
-        .to_string()
-        .parse::<bool>()
-        .unwrap()
-        == false
-    {
-        id = 0;
     }
 
     Ok(id)
@@ -253,6 +301,13 @@ async fn fetch_channel(url: String, kitsu_channel: KitsuChannel) -> Result<i8> {
     let id: i8;
     if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
+        if echo_json["data"]["channel_name"].to_string() != kitsu_channel.channel_name {
+            let _ = update_channel(
+                format!("http://127.0.0.1:1812/api/v1/channel/id/{:?}", id),
+                kitsu_channel,
+            )
+            .await;
+        }
     } else {
         id = post_channel(
             "http://127.0.0.1:1812/api/v1/channel/new".to_string(),
@@ -265,11 +320,22 @@ async fn fetch_channel(url: String, kitsu_channel: KitsuChannel) -> Result<i8> {
     Ok(id)
 }
 
-async fn fetch_user(url: String, kitsu_user: KitsuUser) -> Result<i8> {
+async fn fetch_user(url: String, mut kitsu_user: KitsuUser) -> Result<i8> {
     let echo_json: serde_json::Value = reqwest::get(&url).await?.json().await?;
     let id: i8;
     if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
+        if echo_json["data"]["user_name"].to_string() != kitsu_user.user_name {
+            kitsu_user.vip = echo_json["data"]["vip"]
+                .to_string()
+                .parse::<bool>()
+                .unwrap();
+            let _ = update_user(
+                format!("http://127.0.0.1:1812/api/v1/guild/id/{:?}", id),
+                kitsu_user,
+            )
+            .await;
+        }
     } else {
         id = post_user(
             "http://127.0.0.1:1812/api/v1/user/new".to_string(),
