@@ -1,3 +1,6 @@
+start: build_release start_service
+restart: build_release restart_service
+
 build_release: 
 	cargo build --release 
 run_debug:
@@ -12,3 +15,4 @@ status_service:
 	sudo systemctl status kitsu.service
 restart_service:
 	sudo systemctl restart kitsu.service 
+
