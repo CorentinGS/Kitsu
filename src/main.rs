@@ -236,7 +236,12 @@ async fn fetch_guild(url: String, kitsu_guild: KitsuGuild) -> Result<i8> {
         .unwrap();
     }
 
-    if echo_json["data"]["vip"].to_string().parse::<bool>().unwrap() == false {
+    if echo_json["data"]["vip"]
+        .to_string()
+        .parse::<bool>()
+        .unwrap()
+        == false
+    {
         id = 0;
     }
 
