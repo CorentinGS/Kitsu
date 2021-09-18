@@ -65,7 +65,7 @@ async fn register_message(ctx: Context, msg: Message) {
 
     let guild_id = &fetch_guild(
         format!(
-            "http://127.0.0.1:3000/api/v1/guild/guildId/{:?}",
+            "http://127.0.0.1:1812/api/v1/guild/guildId/{:?}",
             msg.guild_id.unwrap().0
         ),
         kitsu_guild,
@@ -84,7 +84,7 @@ async fn register_message(ctx: Context, msg: Message) {
 
     let user_id = &fetch_user(
         format!(
-            "http://127.0.0.1:3000/api/v1/user/userId/{:?}",
+            "http://127.0.0.1:1812/api/v1/user/userId/{:?}",
             msg.author.id.0
         ),
         kitsu_user,
@@ -105,7 +105,7 @@ async fn register_message(ctx: Context, msg: Message) {
 
     let channel_id = &fetch_channel(
         format!(
-            "http://127.0.0.1:3000/api/v1/channel/channelId/{:?}",
+            "http://127.0.0.1:1812/api/v1/channel/channelId/{:?}",
             msg.channel_id.0
         ),
         kitsu_channel,
@@ -126,7 +126,7 @@ async fn register_message(ctx: Context, msg: Message) {
     };
 
     let _ = post_url(
-        "http://127.0.0.1:3000/api/v1/message/new".to_string(),
+        "http://127.0.0.1:1812/api/v1/message/new".to_string(),
         kitsu_message,
     )
     .await;
@@ -229,7 +229,7 @@ async fn fetch_guild(url: String, kitsu_guild: KitsuGuild) -> Result<i8> {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
     } else {
         id = post_guild(
-            "http://127.0.0.1:3000/api/v1/guild/new".to_string(),
+            "http://127.0.0.1:1812/api/v1/guild/new".to_string(),
             kitsu_guild,
         )
         .await
@@ -246,7 +246,7 @@ async fn fetch_channel(url: String, kitsu_channel: KitsuChannel) -> Result<i8> {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
     } else {
         id = post_channel(
-            "http://127.0.0.1:3000/api/v1/channel/new".to_string(),
+            "http://127.0.0.1:1812/api/v1/channel/new".to_string(),
             kitsu_channel,
         )
         .await
@@ -263,7 +263,7 @@ async fn fetch_user(url: String, kitsu_user: KitsuUser) -> Result<i8> {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
     } else {
         id = post_user(
-            "http://127.0.0.1:3000/api/v1/user/new".to_string(),
+            "http://127.0.0.1:1812/api/v1/user/new".to_string(),
             kitsu_user,
         )
         .await
