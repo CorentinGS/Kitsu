@@ -224,7 +224,7 @@ async fn post_channel(url: String, channel: KitsuChannel) -> Result<i8> {
 
 async fn fetch_guild(url: String, kitsu_guild: KitsuGuild) -> Result<i8> {
     let echo_json: serde_json::Value = reqwest::get(&url).await?.json().await?;
-    let id: i8;
+    let mut id: i8;
     if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
         id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
     } else {
@@ -234,6 +234,10 @@ async fn fetch_guild(url: String, kitsu_guild: KitsuGuild) -> Result<i8> {
         )
         .await
         .unwrap();
+    }
+
+    if echo_json["data"]["vip"].to_string().parse::<bool>().unwrap() == false {
+        id = 0;
     }
 
     Ok(id)
