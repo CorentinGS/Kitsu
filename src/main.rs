@@ -56,8 +56,7 @@ struct KitsuChannel {
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         let now: DateTime<Utc> = Utc::now();
-
-        println!("New message");
+        
         let kitsu_guild = KitsuGuild {
             guild_id: msg.guild_id.unwrap().0.to_string(),
             guild_name: GuildId(msg.guild_id.unwrap().0)
