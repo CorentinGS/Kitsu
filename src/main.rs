@@ -118,7 +118,7 @@ impl EventHandler for Handler {
     async fn ready(&self, ctx: Context, ready: Ready) {
         println!("Connected as {}", ready.user.name);
         ctx.online().await;
-        ctx.set_activity(Activity::playing("Kitsu ! Generating stats"))
+        ctx.set_activity(Activity::playing("to generate stats ! ~about"))
             .await;
     }
 
