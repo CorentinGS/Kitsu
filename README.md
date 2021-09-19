@@ -1,6 +1,9 @@
 # Kitsu
-A discord bot written in rust
 
+**Kitsu** is a discord bot that generates custom statistics on member and room activity for each guild.
+This allows administrators to have a better visibility on the guild activity, peak and off-peak hours, active and dead days etc...
+
+Struggling? Check out [our wiki](https://github.com/CorentinGS/Kitsu/wiki)
 ___
 
 ## TODO
@@ -9,9 +12,12 @@ ___
 - Clean the code
 - Better error handling
 - Add / Remove vip from commands
-- Update users / guilds / channels on update event and check on message if names are up to date
 - Add documentation to the code
 - Add Todo in the code
 - Add .env & .service template files
 - Create a beautiful readme
-- Code optimization
+
+## DISCLAIMER
+
+Kitsu only keeps quantitative activity, the content of messages is not read, kept or used! It is also possible to ignore selected channels.
+You may at any time retrieve a copy of all your stored data and request its deletion.
