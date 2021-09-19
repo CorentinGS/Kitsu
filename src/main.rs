@@ -1,7 +1,8 @@
 mod general;
+mod models;
 
 use general::ping::*;
-use serde::{Deserialize, Serialize};
+use models::{channel::KitsuChannel, guild::KitsuGuild, message::KitsuMessage, user::KitsuUser};
 
 use chrono::{DateTime, Utc};
 use dotenv::dotenv;
@@ -19,37 +20,6 @@ use std::{collections::HashSet, env};
 struct Handler;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
-
-#[derive(Debug, Serialize, Deserialize)]
-struct KitsuMessage {
-    message_id: String,
-    user_id: i8,
-    guild_id: i8,
-    channel_id: i8,
-    date_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct KitsuGuild {
-    guild_id: String,
-    guild_name: String,
-    vip: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct KitsuUser {
-    user_id: String,
-    user_name: String,
-    vip: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct KitsuChannel {
-    channel_id: String,
-    channel_name: String,
-    guild_id: i8,
-    ignore: bool,
-}
 
 async fn register_message(ctx: Context, msg: Message) {
     let now: DateTime<Utc> = Utc::now();
