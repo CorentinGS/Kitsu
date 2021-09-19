@@ -9,13 +9,13 @@ ___
 ## TODO
 
 - IP & ports using .env
-- Clean the code
 - Better error handling
 - Add / Remove vip from commands
 - Add documentation to the code
 - Add Todo in the code
 - Add .env & .service template files
 - Create a beautiful readme
+- Handle threads
 
 ## DISCLAIMER
 
