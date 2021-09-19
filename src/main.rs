@@ -2,6 +2,7 @@ mod api;
 mod events;
 mod general;
 mod models;
+mod utils;
 
 use crate::events::message::register_message;
 use dotenv::dotenv;
