@@ -1,4 +1,4 @@
-use crate::KitsuGuild;
+use crate::models::guild::KitsuGuild;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
