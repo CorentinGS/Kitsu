@@ -1,11 +1,12 @@
+mod api;
 mod general;
 mod models;
 
-use general::ping::*;
-use models::{channel::KitsuChannel, guild::KitsuGuild, message::KitsuMessage, user::KitsuUser};
-
+use api::{channel::fetch_channel, guild::fetch_guild, message::post_message, user::fetch_user};
 use chrono::{DateTime, Utc};
 use dotenv::dotenv;
+use general::ping::*;
+use models::{channel::KitsuChannel, guild::KitsuGuild, message::KitsuMessage, user::KitsuUser};
 
 use serenity::{
     async_trait,
@@ -14,12 +15,11 @@ use serenity::{
     model::{
         channel::Message, event::ResumedEvent, gateway::Ready, id::GuildId, prelude::Activity,
     },
-    prelude::*,
+    prelude::{Client, Context, EventHandler},
 };
 use std::{collections::HashSet, env};
-struct Handler;
 
-type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+struct Handler;
 
 async fn register_message(ctx: Context, msg: Message) {
     let now: DateTime<Utc> = Utc::now();
@@ -95,7 +95,7 @@ async fn register_message(ctx: Context, msg: Message) {
         date_id: now.format("%Y%m%d").to_string().parse::<i64>().unwrap(),
     };
 
-    let _ = post_url(
+    let _ = post_message(
         "http://127.0.0.1:1812/api/v1/message/new".to_string(),
         kitsu_message,
     )
@@ -125,197 +125,6 @@ impl EventHandler for Handler {
     async fn resume(&self, _: Context, _: ResumedEvent) {
         println!("Resumed");
     }
-}
-
-async fn update_channel(url: String, chan: KitsuChannel) -> Result<()> {
-    let _: serde_json::Value = reqwest::Client::new()
-        .put(url)
-        .json(&chan)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    Ok(())
-}
-
-async fn update_user(url: String, user: KitsuUser) -> Result<()> {
-    let _: serde_json::Value = reqwest::Client::new()
-        .put(url)
-        .json(&user)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    Ok(())
-}
-
-async fn update_guild(url: String, guild: KitsuGuild) -> Result<()> {
-    let _: serde_json::Value = reqwest::Client::new()
-        .put(url)
-        .json(&guild)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    Ok(())
-}
-
-async fn post_url(url: String, msg: KitsuMessage) -> Result<()> {
-    let _: serde_json::Value = reqwest::Client::new()
-        .post(url)
-        .json(&msg)
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    Ok(())
-}
-
-async fn post_guild(url: String, guild: KitsuGuild) -> Result<i8> {
-    let new_post: serde_json::Value = reqwest::Client::new()
-        .post(url)
-        .json(&guild)
-        .send()
-        .await?
-        .json()
-        .await?;
-    let id: i8;
-    if new_post["success"].to_string().parse::<bool>().unwrap() == true {
-        id = new_post["data"]["ID"].to_string().parse::<i8>().unwrap();
-    } else {
-        id = 0;
-    }
-    Ok(id)
-}
-
-async fn post_user(url: String, user: KitsuUser) -> Result<i8> {
-    let new_post: serde_json::Value = reqwest::Client::new()
-        .post(url)
-        .json(&user)
-        .send()
-        .await?
-        .json()
-        .await?;
-    let id: i8;
-    if new_post["success"].to_string().parse::<bool>().unwrap() == true {
-        id = new_post["data"]["ID"].to_string().parse::<i8>().unwrap();
-    } else {
-        id = 0;
-    }
-
-    Ok(id)
-}
-
-async fn post_channel(url: String, channel: KitsuChannel) -> Result<i8> {
-    let new_post: serde_json::Value = reqwest::Client::new()
-        .post(url)
-        .json(&channel)
-        .send()
-        .await?
-        .json()
-        .await?;
-    let id: i8;
-    if new_post["success"].to_string().parse::<bool>().unwrap() == true {
-        id = new_post["data"]["ID"].to_string().parse::<i8>().unwrap();
-    } else {
-        id = 0;
-    }
-
-    Ok(id)
-}
-
-async fn fetch_guild(url: String, mut kitsu_guild: KitsuGuild) -> Result<i8> {
-    let echo_json: serde_json::Value = reqwest::get(&url).await?.json().await?;
-    let mut id: i8;
-    if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
-        id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
-
-        if echo_json["data"]["vip"]
-            .to_string()
-            .parse::<bool>()
-            .unwrap()
-            == false
-        {
-            id = 0;
-        }
-
-        if echo_json["data"]["guild_name"].to_string() != kitsu_guild.guild_name {
-            kitsu_guild.vip = echo_json["data"]["vip"]
-                .to_string()
-                .parse::<bool>()
-                .unwrap();
-            let _ = update_guild(
-                format!("http://127.0.0.1:1812/api/v1/guild/id/{:?}", id),
-                kitsu_guild,
-            )
-            .await;
-        }
-    } else {
-        id = post_guild(
-            "http://127.0.0.1:1812/api/v1/guild/new".to_string(),
-            kitsu_guild,
-        )
-        .await
-        .unwrap();
-    }
-
-    Ok(id)
-}
-
-async fn fetch_channel(url: String, kitsu_channel: KitsuChannel) -> Result<i8> {
-    let echo_json: serde_json::Value = reqwest::get(&url).await?.json().await?;
-    let id: i8;
-    if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
-        id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
-        if echo_json["data"]["channel_name"].to_string() != kitsu_channel.channel_name {
-            let _ = update_channel(
-                format!("http://127.0.0.1:1812/api/v1/channel/id/{:?}", id),
-                kitsu_channel,
-            )
-            .await;
-        }
-    } else {
-        id = post_channel(
-            "http://127.0.0.1:1812/api/v1/channel/new".to_string(),
-            kitsu_channel,
-        )
-        .await
-        .unwrap();
-    }
-
-    Ok(id)
-}
-
-async fn fetch_user(url: String, mut kitsu_user: KitsuUser) -> Result<i8> {
-    let echo_json: serde_json::Value = reqwest::get(&url).await?.json().await?;
-    let id: i8;
-    if echo_json["success"].to_string().parse::<bool>().unwrap() == true {
-        id = echo_json["data"]["ID"].to_string().parse::<i8>().unwrap();
-        if echo_json["data"]["user_name"].to_string() != kitsu_user.user_name {
-            kitsu_user.vip = echo_json["data"]["vip"]
-                .to_string()
-                .parse::<bool>()
-                .unwrap();
-            let _ = update_user(
-                format!("http://127.0.0.1:1812/api/v1/guild/id/{:?}", id),
-                kitsu_user,
-            )
-            .await;
-        }
-    } else {
-        id = post_user(
-            "http://127.0.0.1:1812/api/v1/user/new".to_string(),
-            kitsu_user,
-        )
-        .await
-        .unwrap();
-    }
-
-    Ok(id)
 }
 
 #[group]
