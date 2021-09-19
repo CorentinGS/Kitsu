@@ -5,7 +5,7 @@ mod models;
 
 use crate::events::message::register_message;
 use dotenv::dotenv;
-use general::ping::*;
+use general::{ping::*, about::*, pong::*};
 
 use serenity::{
     async_trait,
@@ -44,7 +44,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(ping)]
+#[commands(ping, pong, about)]
 struct General;
 
 #[tokio::main]
