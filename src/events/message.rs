@@ -1,10 +1,15 @@
-
-use crate::{api::{channel::fetch_channel, message::post_message}, models::message::KitsuMessage};
-use serenity::model::prelude::GuildId;
+use crate::{
+    api::{channel::fetch_channel, message::post_message},
+    models::message::KitsuMessage,
+};
 use chrono::{DateTime, Utc};
+use serenity::model::prelude::GuildId;
 use serenity::{client::Context, model::channel::Message};
 
-use crate::{api::{guild::fetch_guild, user::fetch_user}, models::{channel::KitsuChannel, guild::KitsuGuild, user::KitsuUser}};
+use crate::{
+    api::{guild::fetch_guild, user::fetch_user},
+    models::{channel::KitsuChannel, guild::KitsuGuild, user::KitsuUser},
+};
 
 pub async fn register_message(ctx: Context, msg: Message) {
     let now: DateTime<Utc> = Utc::now();
