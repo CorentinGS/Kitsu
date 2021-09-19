@@ -23,6 +23,19 @@ pub async fn register_message(ctx: Context, msg: Message) {
         vip: false,
     };
 
+    // Ugly workaround to prevent threads error
+    if let Some(chan) = msg.channel(&ctx).await {
+        if let Some(chan) = chan.guild() {
+            if let Some(_) = chan.thread_metadata {
+                return
+            }
+        } else {
+            return
+        }
+    } else {
+        return
+    };
+
     let guild_id = &fetch_guild(
         format!(
             "http://127.0.0.1:1812/api/v1/guild/guildId/{:?}",
@@ -55,6 +68,7 @@ pub async fn register_message(ctx: Context, msg: Message) {
     if *user_id == 0 {
         return;
     }
+
 
     let kitsu_channel = KitsuChannel {
         channel_id: msg.channel_id.0.to_string(),
